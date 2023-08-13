@@ -1,0 +1,39 @@
+name: release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+
+  upload:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Typesense binary
+      run: ./setup.sh
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install package
+      run: pip install -e .
+
+    - name: Run tests
+      run: python test.py
+
+    - name: Install build
+      run: pip install build
+
+    - name: Create build
+      run: python -m build
+
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
